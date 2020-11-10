@@ -1,0 +1,18 @@
+{
+  "id": "com.github.mizyind.mattermost-plugin-sentry",
+  "name": "Sentry",
+  "description": "Sends Sentry notifications to Mattermost.",
+  "homepage_url": "https://github.com/miZyind/mattermost-plugin-sentry",
+  "support_url": "https://github.com/miZyind/mattermost-plugin-sentry/issues",
+  "icon_path": "assets/icon.png",
+  "version": "0.0.1",
+  "min_server_version": "5.12.0",
+  "server": {
+    "executable": "main"
+  },
+  "settings_schema": {
+    "header": "",
+    "footer": "",
+    "settings": []
+  }
+}

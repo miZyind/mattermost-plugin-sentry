@@ -1,0 +1,5 @@
+bin
+dist
+manifest.go
+*.tar.gz
+.DS_Store

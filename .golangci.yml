@@ -1,0 +1,13 @@
+run:
+  modules-download-mode: readonly
+  skip-files:
+    - server/manifest.go
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/mizyind/mattermost-plugin-sentry
+  golint:
+    min-confidence: 0
+  govet:
+    check-shadowing: true
+    enable-all: true
