@@ -3,31 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
-
-type webhookRequest struct {
-	ChannelID string `json:"channelID"`
-	Message   string `json:"message"`
-}
-
-func decodeWebhookRequestFromJSON(data io.Reader) *webhookRequest {
-	var o *webhookRequest
-	err := json.NewDecoder(data).Decode(&o)
-	if err != nil {
-		return nil
-	}
-	return o
-}
-
-func (r *webhookRequest) ToJSON() []byte {
-	b, _ := json.Marshal(r)
-	return b
-}
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
@@ -41,15 +22,40 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) handleWebhook(w http.ResponseWriter, r *http.Request) {
-	body := decodeWebhookRequestFromJSON(r.Body)
+	var webhook *SentryWebhook
 
-	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.botID,
-		ChannelId: body.ChannelID,
-		Message:   body.Message,
-	}); err != nil {
-		p.API.LogError("Failed to create post", "err", err.Error())
+	if err := json.NewDecoder(r.Body).Decode(&webhook); err != nil {
+		p.API.LogError("Failed to decode body", "error", err.Error())
 		return
+	}
+
+	var (
+		user     = p.botID
+		channel  = r.URL.Query().Get("channel")
+		project  = strings.ToUpper(webhook.Project)
+		message  = webhook.Event.Title
+		url      = webhook.URL
+		location = webhook.Event.Location
+		color    = "#EC5E44"
+	)
+
+	post := &model.Post{
+		UserId:    user,
+		ChannelId: channel,
+		Props: model.StringInterface{
+			"attachments": []*model.SlackAttachment{
+				{
+					Fallback: fmt.Sprintf("[%s] %s", project, message),
+					Title:    fmt.Sprintf("[%s] [%s](%s)", project, message, url),
+					Text:     fmt.Sprintf("Occurred from: `%s`", location),
+					Color:    color,
+				},
+			},
+		},
+	}
+
+	if _, err := p.API.CreatePost(post); err != nil {
+		p.API.LogError("Failed to create post", "error", err.Error())
 	}
 
 	w.WriteHeader(http.StatusOK)
