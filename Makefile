@@ -11,6 +11,7 @@ all: prepare build bundle clean
 ## Runs any lints and unit tests defined for the server.
 .PHONY: prepare
 prepare:
+	find . -name ".DS_Store" -depth -exec rm {} \;
 	golangci-lint run
 	go test -v -race ./server/...
 
