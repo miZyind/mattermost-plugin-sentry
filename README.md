@@ -6,6 +6,27 @@
 
 Sends Sentry notifications to Mattermost.
 
+This plugin will decode the following notification payload from Sentry:
+```json
+{
+  "project": "mattermost-plugin-sentry",
+  "url": "http://sentry.example.com/mattermost-plugin-sentry/issues/1",
+  "event": {
+    "title": "Error: This is an error example",
+    "location": "~/miZyind/mattermost-plugin-sentry/example.ts"
+  }
+}
+```
+And post the notification to the specific channel:
+![Thumb-1](https://github.com/miZyind/mattermost-plugin-sentry/blob/master/images/thumb-1.png)
+
+## 🔮 Usage
+
+Add the callback url `https://<MATTERMOST-HOST>/plugins/com.github.mizyind.mattermost-plugin-sentry/webhook?channel=<MATTERMOST-CHANNEL-ID>` to Sentry's `WebHooks` plugin:
+![Thumb-2](https://github.com/miZyind/mattermost-plugin-sentry/blob/master/images/thumb-2.png)
+
+That's it!
+
 ## 🔨 Build
 
 ```bash
